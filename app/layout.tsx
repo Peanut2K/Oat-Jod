@@ -3,6 +3,7 @@ import { Sarabun } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/components/LanguageContext";
 import Navigation from "@/components/Navigation";
+import ErrorLogger from "@/components/ErrorLogger";
 
 const sarabun = Sarabun({
   subsets: ["thai", "latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
       </head>
       <body className={`${sarabun.variable} font-sans`}>
         <LanguageProvider>
+          <ErrorLogger />
           <main className="max-w-lg mx-auto min-h-screen pb-20">
             {children}
           </main>
