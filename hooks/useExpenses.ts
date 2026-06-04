@@ -12,8 +12,8 @@ import { Transaction, TransactionType } from "@/types";
 export function useExpenses() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-  const reload = useCallback(() => {
-    setTransactions(getTransactions());
+  const reload = useCallback(async () => {
+    setTransactions(await getTransactions());
   }, []);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export function useExpenses() {
   }, [reload]);
 
   const addTransaction = useCallback(
-    (data: {
+    async (data: {
       amount: number;
       type: TransactionType;
       categoryId: string;
@@ -34,25 +34,25 @@ export function useExpenses() {
         ...data,
         createdAt: new Date().toISOString(),
       };
-      storageAdd(txn);
-      reload();
+      await storageAdd(txn);
+      await reload();
       return txn;
     },
     [reload]
   );
 
   const updateTransaction = useCallback(
-    (txn: Transaction) => {
-      storageUpdate(txn);
-      reload();
+    async (txn: Transaction) => {
+      await storageUpdate(txn);
+      await reload();
     },
     [reload]
   );
 
   const deleteTransaction = useCallback(
-    (id: string) => {
-      storageDelete(id);
-      reload();
+    async (id: string) => {
+      await storageDelete(id);
+      await reload();
     },
     [reload]
   );

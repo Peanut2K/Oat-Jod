@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Language } from "@/types";
+import { Language, AppSettings } from "@/types";
 import { getSettings, saveSettings } from "@/lib/storage";
 
 type T = Record<string, string>;
@@ -175,16 +175,20 @@ const LanguageContext = createContext<LanguageContextType>({
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Language>("th");
+  const [fullSettings, setFullSettings] = useState<AppSettings | null>(null);
 
   useEffect(() => {
-    const s = getSettings();
-    setLangState(s.language);
+    getSettings().then((s) => {
+      setLangState(s.language);
+      setFullSettings(s);
+    });
   }, []);
 
   const setLang = (l: Language) => {
     setLangState(l);
-    const s = getSettings();
-    saveSettings({ ...s, language: l });
+    const updated = { ...(fullSettings ?? {}), language: l } as AppSettings;
+    setFullSettings(updated);
+    saveSettings(updated);
   };
 
   const t = (key: string) => translations[lang][key] ?? key;

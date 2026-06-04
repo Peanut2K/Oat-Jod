@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { useLang } from "./LanguageContext";
-import { getCategories } from "@/lib/storage";
+import { useCategories } from "@/hooks/useCategories";
 import { TransactionType } from "@/types";
 import clsx from "clsx";
 
@@ -22,7 +22,7 @@ interface Props {
 
 export default function ExpenseForm({ onSave, prefillAmount, prefillNote, imageUrl }: Props) {
   const { t, lang } = useLang();
-  const categories = getCategories();
+  const { categories } = useCategories();
 
   const [type, setType] = useState<TransactionType>("expense");
   const [amount, setAmount] = useState(prefillAmount?.toString() ?? "");

@@ -44,7 +44,7 @@ export default function ExpensePieChart({ transactions, categories }: Props) {
           cy="45%"
           innerRadius={60}
           outerRadius={95}
-          paddingAngle={3}
+          paddingAngle={data.length > 1 ? 3 : 0}
           dataKey="value"
         >
           {data.map((entry, i) => (

@@ -1,8 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { useLang } from "./LanguageContext";
-import { getCategories, saveCategories, generateId } from "@/lib/storage";
+import { useCategories } from "@/hooks/useCategories";
+import { addCategory, deleteCategory, generateId } from "@/lib/storage";
 import { Category, TransactionType } from "@/types";
 
 const ICONS = ["🍔","🚗","🛍️","💊","🎮","📱","📚","📦","💰","💻","🎁","💵","🏠","✈️","☕","🎵","🐾","💈","⚽","🎨"];
@@ -10,15 +11,11 @@ const COLORS = ["#f97316","#3b82f6","#ec4899","#ef4444","#8b5cf6","#6b7280","#08
 
 export default function CategoryManager() {
   const { t, lang } = useLang();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { categories, reload } = useCategories();
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState({ nameTh: "", nameEn: "", icon: "📦", color: "#6b7280", type: "expense" as TransactionType });
 
-  useEffect(() => {
-    setCategories(getCategories());
-  }, []);
-
-  const save = () => {
+  const save = async () => {
     if (!form.nameTh) return;
     const cat: Category = {
       id: generateId(),
@@ -28,17 +25,15 @@ export default function CategoryManager() {
       color: form.color,
       type: form.type,
     };
-    const updated = [...categories, cat];
-    saveCategories(updated);
-    setCategories(updated);
+    await addCategory(cat);
+    await reload();
     setAdding(false);
     setForm({ nameTh: "", nameEn: "", icon: "📦", color: "#6b7280", type: "expense" });
   };
 
-  const remove = (id: string) => {
-    const updated = categories.filter((c) => c.id !== id);
-    saveCategories(updated);
-    setCategories(updated);
+  const remove = async (id: string) => {
+    await deleteCategory(id);
+    await reload();
   };
 
   return (

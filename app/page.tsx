@@ -1,38 +1,38 @@
 "use client";
 import { useMemo } from "react";
-import { format, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
+import { format, addMonths, subMonths } from "date-fns";
 import { th, enUS } from "date-fns/locale";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { useLang } from "@/components/LanguageContext";
 import { useExpenses } from "@/hooks/useExpenses";
-import { getCategories, getBudgets, getSettings } from "@/lib/storage";
+import { useCategories } from "@/hooks/useCategories";
+import { useBudgets } from "@/hooks/useBudgets";
+import { useSettings } from "@/hooks/useSettings";
 import BudgetOverview from "@/components/BudgetOverview";
 import ExpenseList from "@/components/ExpenseList";
 
 export default function HomePage() {
   const { t, lang } = useLang();
   const { transactions, deleteTransaction } = useExpenses();
-  const categories = getCategories();
-  const budgets = getBudgets();
-  const settings = getSettings();
+  const { categories } = useCategories();
+  const { budgets } = useBudgets();
+  const { settings } = useSettings();
 
   const now = new Date();
   const locale = lang === "th" ? th : enUS;
 
   const periodStart = useMemo(() => {
+    if (!settings) return new Date(now.getFullYear(), now.getMonth(), 1);
     const d = new Date(now.getFullYear(), now.getMonth(), settings.budgetStartDay);
     return d > now ? subMonths(d, 1) : d;
-  }, [now, settings.budgetStartDay]);
+  }, [now, settings]);
 
   const periodEnd = useMemo(() => addMonths(periodStart, 1), [periodStart]);
 
-  const monthStart = startOfMonth(now);
-  const monthEnd = endOfMonth(now);
-
   const monthTxns = transactions.filter((t) => {
     const d = new Date(t.date);
-    return d >= monthStart && d <= monthEnd;
+    return d >= periodStart && d < periodEnd;
   });
 
   const totalExpense = monthTxns
@@ -42,6 +42,8 @@ export default function HomePage() {
     .filter((t) => t.type === "income")
     .reduce((s, t) => s + t.amount, 0);
   const balance = totalIncome - totalExpense;
+
+  const currency = settings?.currency ?? "THB";
 
   return (
     <div className="p-4 space-y-5">
@@ -60,9 +62,7 @@ export default function HomePage() {
           <p className={`text-3xl font-bold mt-1 ${balance < 0 ? "text-red-200" : ""}`}>
             {balance >= 0 ? "" : "−"}
             {Math.abs(balance).toLocaleString()}
-            <span className="text-base font-normal ml-1 opacity-70">
-              {settings.currency}
-            </span>
+            <span className="text-base font-normal ml-1 opacity-70">{currency}</span>
           </p>
         </div>
         <div className="bg-white rounded-2xl p-3 shadow-sm border border-gray-100">

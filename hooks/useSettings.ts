@@ -7,13 +7,13 @@ export function useSettings() {
   const [settings, setSettings] = useState<AppSettings | null>(null);
 
   useEffect(() => {
-    setSettings(getSettings());
+    getSettings().then(setSettings);
   }, []);
 
-  const updateSettings = useCallback((patch: Partial<AppSettings>) => {
-    const current = getSettings();
+  const updateSettings = useCallback(async (patch: Partial<AppSettings>) => {
+    const current = await getSettings();
     const updated = { ...current, ...patch };
-    saveSettings(updated);
+    await saveSettings(updated);
     setSettings(updated);
   }, []);
 

@@ -1,8 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Plus, Trash2, Play } from "lucide-react";
 import { useLang } from "./LanguageContext";
-import { getAutoRecords, saveAutoRecords, getCategories, generateId } from "@/lib/storage";
+import { useCategories } from "@/hooks/useCategories";
+import { getAutoRecords, saveAutoRecords, generateId } from "@/lib/storage";
 import { AutoRecord, TransactionType } from "@/types";
 
 interface Props {
@@ -11,9 +12,9 @@ interface Props {
 
 export default function AutoRecordManager({ onApply }: Props) {
   const { t, lang } = useLang();
+  const { categories } = useCategories();
   const [records, setRecords] = useState<AutoRecord[]>([]);
   const [adding, setAdding] = useState(false);
-  const categories = getCategories();
 
   const [form, setForm] = useState({
     name: "",
@@ -23,11 +24,15 @@ export default function AutoRecordManager({ onApply }: Props) {
     note: "",
   });
 
-  useEffect(() => {
-    setRecords(getAutoRecords());
+  const reload = useCallback(async () => {
+    setRecords(await getAutoRecords());
   }, []);
 
-  const save = () => {
+  useEffect(() => {
+    reload();
+  }, [reload]);
+
+  const save = async () => {
     if (!form.name || !form.amount || !form.categoryId) return;
     const newRecord: AutoRecord = {
       id: generateId(),
@@ -40,16 +45,16 @@ export default function AutoRecordManager({ onApply }: Props) {
       enabled: true,
     };
     const updated = [...records, newRecord];
-    saveAutoRecords(updated);
-    setRecords(updated);
+    await saveAutoRecords(updated);
+    await reload();
     setAdding(false);
     setForm({ name: "", amount: "", type: "expense", categoryId: "", note: "" });
   };
 
-  const remove = (id: string) => {
+  const remove = async (id: string) => {
     const updated = records.filter((r) => r.id !== id);
-    saveAutoRecords(updated);
-    setRecords(updated);
+    await saveAutoRecords(updated);
+    await reload();
   };
 
   const filtered = categories.filter((c) => c.type === form.type);

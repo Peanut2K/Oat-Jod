@@ -5,7 +5,7 @@ import { th, enUS } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { useLang } from "@/components/LanguageContext";
 import { useExpenses } from "@/hooks/useExpenses";
-import { getCategories } from "@/lib/storage";
+import { useCategories } from "@/hooks/useCategories";
 import ExpensePieChart from "@/components/charts/ExpensePieChart";
 import MonthlyBarChart from "@/components/charts/MonthlyBarChart";
 import TrendChart from "@/components/charts/TrendChart";
@@ -18,7 +18,7 @@ type Period = "monthly" | "weekly" | "daily";
 export default function ReportsPage() {
   const { t, lang } = useLang();
   const { transactions, deleteTransaction } = useExpenses();
-  const categories = getCategories();
+  const { categories } = useCategories();
   const locale = lang === "th" ? th : enUS;
 
   const [period, setPeriod] = useState<Period>("monthly");
@@ -79,7 +79,6 @@ export default function ReportsPage() {
     { key: "list", label: lang === "th" ? "รายการ" : "List" },
   ] as const;
 
-  // Top categories
   const catTotals: Record<string, number> = {};
   filtered.filter((t) => t.type === "expense").forEach((t) => {
     catTotals[t.categoryId] = (catTotals[t.categoryId] ?? 0) + t.amount;
