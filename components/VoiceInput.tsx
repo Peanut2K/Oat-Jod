@@ -48,9 +48,9 @@ export default function VoiceInput({ onResult }: Props) {
     rec.continuous = false;
     rec.interimResults = true;
 
-    rec.onresult = (e: SpeechRecognitionEvent) => {
-      const result = Array.from(e.results)
-        .map((r) => r[0].transcript)
+    rec.onresult = (e: any) => {
+      const result = Array.from(e.results as any)
+        .map((r: any) => r[0].transcript)
         .join(" ");
       setTranscript(result);
 
