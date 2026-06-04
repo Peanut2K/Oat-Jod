@@ -1,0 +1,12 @@
+{
+  "name": "บันทึกรายจ่าย",
+  "short_name": "Expense",
+  "description": "ติดตามรายรับ-รายจ่ายส่วนตัว",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#22c55e",
+  "icons": [
+    { "src": "/icon.png", "sizes": "192x192", "type": "image/png" }
+  ]
+}
